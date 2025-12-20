@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "types": ["node"],
+        "strict": true,
+        "moduleResolution": "node",
+        "module": "CommonJS",
+        "target": "esnext",
+        "declaration": true,
+        "outDir": "./dist",
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "emitDeclarationOnly": true
+    }
+}
