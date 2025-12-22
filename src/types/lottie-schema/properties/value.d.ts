@@ -1,5 +1,5 @@
 import ValueKeyframe from './keyframe/valueKeyframe';
-import BaseProperty from './baseProperty';
+import type { RuntimeBaseProperty as BaseProperty } from './baseProperty';
 
 /**
  * 一段属性值描述

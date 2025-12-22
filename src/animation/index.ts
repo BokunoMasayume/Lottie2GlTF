@@ -120,12 +120,12 @@ function generateXRotate(value: RuntimeLayer['ks']): ScalarCurve {
     const xCurve = new ScalarCurve();
     if (value.rx === undefined || value.rx.a === 0) {
         xCurve.addKeyPoint({
-            value: value.rx?.k ?? 0,
+            value: (value.rx?.k as number) ?? 0,
             time: 0,
         });
     } else {
         const rotate = value.rx.k;
-        collectScalar(xCurve, rotate);
+        collectScalar(xCurve, rotate as any[]);
     }
 
     return xCurve;
@@ -135,11 +135,11 @@ function generateYRotate(value: RuntimeLayer['ks']): ScalarCurve {
     const yCurve = new ScalarCurve();
     if (value.ry === undefined || value.ry.a === 0) {
         yCurve.addKeyPoint({
-            value: value.ry?.k ?? 0,
+            value: (value.ry?.k as number) ?? 0,
             time: 0,
         });
     } else {
-        collectScalar(yCurve, value.ry.k);
+        collectScalar(yCurve, value.ry.k as any[]);
     }
     return yCurve;
 }
@@ -149,11 +149,11 @@ function generateZRotate(value: RuntimeLayer['ks']): ScalarCurve {
     const info = value.rz ?? value.r;
     if (info === undefined || info.a === 0) {
         zCurve.addKeyPoint({
-            value: info.k ?? 0,
+            value: (info?.k as number) ?? 0,
             time: 0,
         });
     } else {
-        collectScalar(zCurve, info.k);
+        collectScalar(zCurve, info.k as any[]);
     }
 
     return zCurve;
@@ -234,15 +234,15 @@ function generateOpacity(value: RuntimeLayer['ks']): ScalarCurve {
     const res = new ScalarCurve();
     if (!value.o?.a) {
         res.addKeyPoint({
-            value: value.o.k / 100,
+            value: (value.o.k as number) / 100,
             time: 0,
         });
     } else {
         const opacity = value.o.k;
-        const len = opacity.length;
+        const len = (opacity as any[]).length;
         for (let i = 0; i < len; i++) {
-            const current = opacity[i]!;
-            const prev = opacity[i - 1];
+            const current = (opacity as any[])[i]!;
+            const prev = (opacity as any[])[i - 1];
             const ox: number =
                 current.o === undefined ? 0 : current.o.x instanceof Array ? current.o.x[0]! : current.o.x;
             const oy: number =
