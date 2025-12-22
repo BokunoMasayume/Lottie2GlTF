@@ -1,3 +1,6 @@
+import { getAnimation } from "./animation";
+import { Node } from "./lottie-parse/node";
+
 export const getGltfTemplate = (nm?: string) => {
     return {
         scene: 0,
@@ -56,3 +59,8 @@ export const getGltfTemplate = (nm?: string) => {
         ],
     };
 };
+
+export function generateGlTF(tree: Node, animation: ReturnType<typeof getAnimation>) {
+
+    
+}

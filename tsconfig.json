@@ -9,6 +9,9 @@
         "outDir": "./dist",
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
-        "emitDeclarationOnly": true
+        "emitDeclarationOnly": true,
+        "paths": {
+            "@crab/math": ["./src/crab/math/src"]
+        }
     }
 }
