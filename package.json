@@ -22,8 +22,6 @@
         "@babel/parser": "^7.24.4",
         "@babel/traverse": "^7.24.1",
         "@babel/types": "^7.26.9",
-        "@ks/ksso-cli": "^0.0.6",
-        "@ks/weblogger": "^3.10.42",
         "@types/async": "^3.2.24",
         "@types/ejs": "^3.1.5",
         "@types/progress": "^2.0.7",

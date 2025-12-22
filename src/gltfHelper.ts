@@ -72,6 +72,17 @@ type MaterialItem = {
     };
 }
 
+type MeshItem = {
+    primitives: {
+        material: number,
+        mode: number,
+        attributes: {
+            POSITION: number,
+            TEXCOORD_0: number,
+        },
+    }[];
+}
+
 export class GlTFHelper {
     rawBufferViews: ArrayBufferView[] = [];
 
@@ -85,6 +96,19 @@ export class GlTFHelper {
     images: ImageItem[] = [];
     textures: TextureItem[] = [];
     materials: MaterialItem[] = [];
+    meshes: (MeshItem & {id: string})[] = [];
+
+    get buffers() {
+        return [
+            {
+                uri: 'buffer.bin',
+                byteLength: this.abLength,
+            }
+        ]
+    }
+    constructor(public scaleRatio = 1) {
+
+    }
 
 
     createBufferView(byte: ArrayBufferView, target: BufferTarget) {
@@ -94,6 +118,7 @@ export class GlTFHelper {
             target: target,
             byteOffset: this.abLength,
         };
+        this.rawBufferViews.push(byte);
         this.bufferViews.push(bv);
         this.abLength += byte.byteLength;
         return this.bufferViews.length - 1;
@@ -181,6 +206,13 @@ export class GlTFHelper {
     }
 
     createMaterial(name: string, uri: string, opacity = 1) {
+        const cachedTexIdx = this.textures.findIndex(item => item.name === name);
+        if (cachedTexIdx >= 0) {
+            const materialIdx = this.materials.findIndex(item => item.pbrMetallicRoughness.baseColorTexture.index === cachedTexIdx);
+            if (materialIdx >= 0) {
+                return materialIdx;
+            }
+        }
         const textureIdx = this.createTexture(name, uri);
         const material: MaterialItem = {
             pbrMetallicRoughness: {
@@ -195,6 +227,55 @@ export class GlTFHelper {
         };
         this.materials.push(material);
         return this.materials.length - 1;
+    }
+
+    createMesh(imgName: string, uri: string, width: number, height: number, x = 0, y = 0, totalWidth?: number, totalHeight?: number) {
+        const meshId = `${imgName}-${x}-${y}-${width}-${height}`;
+        const meshIdx = this.meshes.findIndex(item => item.id === meshId);
+        if (meshIdx >= 0) {
+            return meshIdx;
+        }
+        const materialIdx = this.createMaterial(imgName, uri);
+        const w = width * this.scaleRatio;
+        const h = height * this.scaleRatio;
+        const tw = totalWidth ? totalWidth : width;
+        const th = totalHeight ? totalHeight : height;
+        
+        const positionArray = this.createTypedArray([
+            ...[0, 0, 0],
+            ...[w, 0, 0],
+            ...[0, -h, 0],
+            ...[0, -h, 0],
+            ...[w, 0, 0],
+            ...[w, -h, 0],
+        ]);
+
+        const uvArray = this.createTypedArray([
+            x / tw, y / th,
+            (x + width) / tw, y / th,
+            x / tw, (y + height) / th,
+            x / tw, (y + height) / th,
+            (x + width) / tw, y / th,
+            (x + width) / tw, (y + height) / th,
+        ]);
+
+        const posiAccessor = this.createAccessor(positionArray, 3);
+        const uvAccessor = this.createAccessor(uvArray, 2);
+        const mesh = {
+            primitives: [
+                {
+                    material: materialIdx,
+                    mode: 4,
+                    attributes: {
+                        POSITION: posiAccessor,
+                        TEXCOORD_0: uvAccessor,
+                    }
+                },
+            ],
+            id: meshId,
+        };
+        this.meshes.push(mesh);
+        return this.meshes.length - 1;
     }
 
 }

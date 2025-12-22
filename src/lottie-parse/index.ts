@@ -90,6 +90,15 @@ export function getNodeTreeFromLottie(lottie: LottieSchema) {
         }
     } 
 
+    const loopTree = (r: Node) => {
+        r.children.forEach((child, idx) => {
+            child.drawOrder = idx;
+            loopTree(child);
+        });
+    }
+
+    loopTree(root);
+
     return root;
 
 }

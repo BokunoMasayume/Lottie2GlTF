@@ -867,23 +867,33 @@ function createMesh(imgName, width, height) {
         0,
         0,
         0,
+
         w,
         0,
         0,
+
         0,
         -h,
         0,
+
         0,
         -h,
         0,
+
         w,
         0,
         0,
+
         w,
         -h,
         0,
     ]);
-    let uvArray = new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]);
+    let uvArray = new Float32Array([
+        0, 0, 
+        1, 0, 
+        0, 1, 
+        0, 1, 
+        1, 0, 1, 1]);
     const posiAccessor = createAccessor(positionArray, 3);
     const uvAccessor = createAccessor(uvArray, 2);
     gltf.accessors.push(posiAccessor);

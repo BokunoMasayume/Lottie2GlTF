@@ -364,11 +364,16 @@ function createKeyframeGenerator(
     return getKeyframe;
 }
 
+const LayerInter = 0.1;
+
 export type AnimationTarget = 'translation' | 'rotation' | 'scale' | 'opacity';
-const getSingleAnimation = (getKeyframe: ReturnType<typeof createKeyframeGenerator>, key: AnimationTarget | 'anchor', startFrame: number, endFrame: number) => {
+const getSingleAnimation = (getKeyframe: ReturnType<typeof createKeyframeGenerator>, key: AnimationTarget | 'anchor', startFrame: number, endFrame: number, node: Node) => {
     const keyFrames: Array<number | Vec3 | Quaternion> = []
     for (let i = startFrame; i <= endFrame; i ++) {
         const keyframe = getKeyframe(i);
+        if (key === 'translation') {
+            keyframe.translation.value.z = node.drawOrder * LayerInter;
+        }
         keyFrames.push(keyframe[key].value);
     }
 
@@ -397,7 +402,8 @@ export function getAnimation(lottie: LottieSchema, tree: Node, startFrame: numbe
             if (start.anchor.isConst && start.rotation.isConst && start.scale.isConst && start.translation.isConst) {
                 console.log(`=====node[${node.globalId}] is const`);
                 node.anchor.setValue(start.anchor.value.x, start.anchor.value.y, start.anchor.value.z);
-                node.translate.setValue(start.translation.value.x, start.translation.value.y, start.translation.value.z);
+                node.translate.setValue(start.translation.value.x, start.translation.value.y, node.drawOrder * LayerInter);
+                // node.translate.setValue(start.translation.value.x, start.translation.value.y, start.translation.value.z);
                 node.scale.setValue(start.scale.value.x, start.scale.value.y, start.scale.value.z);
                 node.rotate.setValue(start.rotation.value.x, start.rotation.value.y, start.rotation.value.z, start.rotation.value.w);
                 node.opacity = start.opacity.value;
@@ -413,7 +419,8 @@ export function getAnimation(lottie: LottieSchema, tree: Node, startFrame: numbe
                 node.hasAnchor = true;
                 node.children = [anchorNode];
 
-                node.translate.setValue(start.translation.value.x, start.translation.value.y, start.translation.value.z);
+                node.translate.setValue(start.translation.value.x, start.translation.value.y, node.drawOrder * LayerInter);
+                // node.translate.setValue(start.translation.value.x, start.translation.value.y, start.translation.value.z);
                 node.scale.setValue(start.scale.value.x, start.scale.value.y, start.scale.value.z);
                 node.rotate.setValue(start.rotation.value.x, start.rotation.value.y, start.rotation.value.z, start.rotation.value.w);
                 anchorNode.opacity = start.opacity.value;
@@ -421,7 +428,7 @@ export function getAnimation(lottie: LottieSchema, tree: Node, startFrame: numbe
 
 
                 if (!start.translation.isConst) {
-                    const translationKeyframes = getSingleAnimation(getKeyframe, 'translation', startFrame, endFrame);
+                    const translationKeyframes = getSingleAnimation(getKeyframe, 'translation', startFrame, endFrame, node);
                     animations.push({
                         node,
                         target: 'translation',
@@ -429,7 +436,7 @@ export function getAnimation(lottie: LottieSchema, tree: Node, startFrame: numbe
                     })
                 }
                 if (!start.rotation.isConst) {
-                    const rotationKeyframes = getSingleAnimation(getKeyframe, 'rotation', startFrame, endFrame);
+                    const rotationKeyframes = getSingleAnimation(getKeyframe, 'rotation', startFrame, endFrame, node);
                     animations.push({
                         node,
                         target: 'rotation',
@@ -437,7 +444,7 @@ export function getAnimation(lottie: LottieSchema, tree: Node, startFrame: numbe
                     })
                 }
                 if (!start.scale.isConst) {
-                    const scaleKeyframes = getSingleAnimation(getKeyframe, 'scale', startFrame, endFrame);
+                    const scaleKeyframes = getSingleAnimation(getKeyframe, 'scale', startFrame, endFrame, node);
                     animations.push({
                         node,
                         target: 'scale',
@@ -447,7 +454,7 @@ export function getAnimation(lottie: LottieSchema, tree: Node, startFrame: numbe
             }
 
             if (!start.opacity.isConst) {
-                const opacityKeyframes = getSingleAnimation(getKeyframe, 'opacity', startFrame, endFrame);
+                const opacityKeyframes = getSingleAnimation(getKeyframe, 'opacity', startFrame, endFrame, node);
                 animations.push({
                     node,
                     target: 'opacity',
