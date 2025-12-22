@@ -60,6 +60,8 @@ export const getGltfTemplate = (nm?: string) => {
     };
 };
 
+
+
 export function generateGlTF(tree: Node, animation: ReturnType<typeof getAnimation>) {
 
     
