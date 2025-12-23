@@ -1,4 +1,4 @@
-import { Quaternion, Vec3 } from "@crab/math";
+import { Mat4, Quaternion, Vec3 } from "@crab/math";
 import { RuntimeLayer } from "../types/lottie-schema";
 import { Layer } from "../types/lottie-schema/effects/layer";
 
@@ -12,6 +12,7 @@ export class Node {
     }
     nodeId: string;
     id: number;
+    globalId: string;
 
     // 指示是否对应了lottie里的图层
     isInLottie: boolean;
@@ -37,11 +38,15 @@ export class Node {
     rotate: Quaternion = new Quaternion(0, 0, 0, 1);
 
     anchor: Vec3 = new Vec3(0, 0, 0);
+
+    matrix?: Mat4;
+
     opacity: number = 1;
 
 
     constructor(config: {
         id: number,
+        globalId: string,
         isInLottie: boolean,
         parent?: Node,
         drawImageId?: string,
@@ -49,20 +54,12 @@ export class Node {
     }){
         this.nodeId = Node.generateNodeId()+ '';
         this.id = config.id;
+        this.globalId = config.globalId;
         this.isInLottie = config.isInLottie;
         this.parent = config.parent || null;
         this.drawImageId = config.drawImageId || null;
         this.drawOrder = config.drawOrder || 0;
 
-    }
-
-    get globalId(): string {
-        const parentStr = this.parent?.globalId;
-        const myStr = this.isInLottie ? `${this.id}` : '';
-        if (parentStr && myStr) {
-            return `${parentStr}-${myStr}`;
-        }
-        return parentStr || myStr || '';
     }
 
     addChild(child: Node){

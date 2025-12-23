@@ -1,6 +1,7 @@
 import { LottieSchema, RuntimePreComp } from "../types/lottie-schema"
 import { LayerType } from "../types/schema-enum";
 import { Node } from "./node";
+import { getFlattenNodes } from "./utils";
 
 export function getLottieBaseInfo(lottie: LottieSchema) {
     return {
@@ -32,11 +33,14 @@ export const getDrawOrder = () => {
 function getNodeTreeFromPreComp(preComp: RuntimePreComp | LottieSchema, lottie: LottieSchema, parentNode: Node|null) {
     const rootNode = parentNode ?? new Node({
         id: -1,
+        globalId: '',
         isInLottie: false,
     });
+    const parentId = parentNode?.id;
     const nodes = preComp.layers.map(layer => {
         const node = new Node({
             id: layer.ind,
+            globalId: parentId ? `${parentId}-${layer.ind}` : `${layer.ind}`,
             isInLottie: true,
             parent: rootNode,
         });
@@ -50,6 +54,8 @@ function getNodeTreeFromPreComp(preComp: RuntimePreComp | LottieSchema, lottie: 
         if (layerInfo.parent) {
             node.parent = nodes.filter((n) => n.id === layerInfo.parent)[0];
         }
+
+        node.parent?.addChild(node);
     });
 
     nodes.forEach((node, idx) => {

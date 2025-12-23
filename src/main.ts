@@ -27,7 +27,7 @@ export function Lottie2Gltf(lottie: LottieSchema, dstPath: string) {
     const findNodeIdx = (id: string) => rawNodes.findIndex(node => node.nodeId === id);
 
     const imgs = (lottie.assets
-                .filter(asset => asset.ty === AssetType.Image) as RuntimeImage[])
+                .filter(asset => !(asset as any).layers) as RuntimeImage[])
                 .map(asset => {
                     return {
                         name: asset.id,
@@ -37,13 +37,19 @@ export function Lottie2Gltf(lottie: LottieSchema, dstPath: string) {
                     }
                 });
 
+
     const nodes = rawNodes.map(node => {
         let nodeInfo: any = {
             name: node.nodeId,
-            translation: [node.translate.x, node.translate.y, node.translate.z],
-            rotation: [node.rotate.x, node.rotate.y, node.rotate.z, node.rotate.w],
-            scale: [node.scale.x, node.scale.y, node.scale.z],
+            
             children: node.children.map(child => findNodeIdx(child.nodeId)),
+        };
+        if (node.matrix) {
+            nodeInfo.matrix = [...node.matrix.components];
+        } else {
+            nodeInfo.translation = [node.translate.x, node.translate.y, node.translate.z];
+            nodeInfo.rotation = [node.rotate.x, node.rotate.y, node.rotate.z, node.rotate.w];
+            nodeInfo.scale = [node.scale.x, node.scale.y, node.scale.z];
         }
         let imgId = ''
         if (node.drawImageId && !node.hasAnchor) {
@@ -77,11 +83,11 @@ export function Lottie2Gltf(lottie: LottieSchema, dstPath: string) {
             }
         });
     });
-    const animations = {
+    const animations = [{
         name: 'default',
         channels,
         samplers,
-    };
+    }];
 
     const gltf = {
         ...getGltfTemplate(),

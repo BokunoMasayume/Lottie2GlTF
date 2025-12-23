@@ -406,11 +406,17 @@ export function getAnimation(lottie: LottieSchema, tree: Node, startFrame: numbe
                 // node.translate.setValue(start.translation.value.x, start.translation.value.y, start.translation.value.z);
                 node.scale.setValue(start.scale.value.x, start.scale.value.y, start.scale.value.z);
                 node.rotate.setValue(start.rotation.value.x, start.rotation.value.y, start.rotation.value.z, start.rotation.value.w);
+
+                const mat = new Mat4();
+                mat.compose(start.translation.value, start.rotation.value, start.scale.value);
+                mat.multiply(new Mat4().setFromTranslation(start.anchor.value));
+                node.matrix = mat;
                 node.opacity = start.opacity.value;
             } else {
                 const children = node.children;
                 const anchorNode = new Node({
                     id: -1,
+                    globalId: node.globalId + '_anchor',
                     isInLottie: false,
                     parent: node,
                 });

@@ -64,3 +64,8 @@ accessors有bufferViews的引用, bufferViews有buffers的引用
 4. 组合gltf
     可以简单的多个mesh
     或者用骨骼变成单一mesh
+
+
+TODO
+
+- 图层合并
