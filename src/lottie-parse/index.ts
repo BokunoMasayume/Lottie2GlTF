@@ -97,8 +97,12 @@ export function getNodeTreeFromLottie(lottie: LottieSchema) {
     } 
 
     const loopTree = (r: Node) => {
+        const idx = drawablePrefis.findIndex(prefix => prefix ===r.globalId);
+        if (idx >= 0) {
+            console.log('====node', r.globalId, idx);
+            r.drawOrder = idx;
+        }
         r.children.forEach((child, idx) => {
-            child.drawOrder = idx;
             loopTree(child);
         });
     }

@@ -372,7 +372,8 @@ const getSingleAnimation = (getKeyframe: ReturnType<typeof createKeyframeGenerat
     for (let i = startFrame; i <= endFrame; i ++) {
         const keyframe = getKeyframe(i);
         if (key === 'translation') {
-            keyframe.translation.value.z = node.drawOrder * LayerInter;
+            keyframe.translation.value.z = (node.drawOrder - node.parentDrawOrder()) * LayerInter;
+            // keyframe.translation.value.z = node.drawOrder * LayerInter;
         }
         keyFrames.push(keyframe[key].value);
     }
@@ -400,16 +401,17 @@ export function getAnimation(lottie: LottieSchema, tree: Node, startFrame: numbe
             const start = getKeyframe(startFrame);
 
             if (start.anchor.isConst && start.rotation.isConst && start.scale.isConst && start.translation.isConst) {
-                console.log(`=====node[${node.globalId}] is const`);
-                node.anchor.setValue(start.anchor.value.x, start.anchor.value.y, start.anchor.value.z);
-                node.translate.setValue(start.translation.value.x, start.translation.value.y, node.drawOrder * LayerInter);
+                node.anchor.setValue(start.anchor.value.x, start.anchor.value.y, 0);
+                // node.anchor.setValue(start.anchor.value.x, start.anchor.value.y, start.anchor.value.z);
+                node.translate.setValue(start.translation.value.x, start.translation.value.y, (node.drawOrder - node.parentDrawOrder()) * LayerInter);
+                // node.translate.setValue(start.translation.value.x, start.translation.value.y, node.drawOrder * LayerInter);
                 // node.translate.setValue(start.translation.value.x, start.translation.value.y, start.translation.value.z);
                 node.scale.setValue(start.scale.value.x, start.scale.value.y, start.scale.value.z);
                 node.rotate.setValue(start.rotation.value.x, start.rotation.value.y, start.rotation.value.z, start.rotation.value.w);
 
                 const mat = new Mat4();
-                mat.compose(start.translation.value, start.rotation.value, start.scale.value);
-                mat.multiply(new Mat4().setFromTranslation(start.anchor.value));
+                mat.compose(node.translate, node.rotate, node.scale);
+                mat.multiply(new Mat4().setFromTranslation(node.anchor));
                 node.matrix = mat;
                 node.opacity = start.opacity.value;
             } else {
@@ -425,12 +427,13 @@ export function getAnimation(lottie: LottieSchema, tree: Node, startFrame: numbe
                 node.hasAnchor = true;
                 node.children = [anchorNode];
 
-                node.translate.setValue(start.translation.value.x, start.translation.value.y, node.drawOrder * LayerInter);
+                node.translate.setValue(start.translation.value.x, start.translation.value.y, (node.drawOrder - node.parentDrawOrder()) * LayerInter);
                 // node.translate.setValue(start.translation.value.x, start.translation.value.y, start.translation.value.z);
                 node.scale.setValue(start.scale.value.x, start.scale.value.y, start.scale.value.z);
                 node.rotate.setValue(start.rotation.value.x, start.rotation.value.y, start.rotation.value.z, start.rotation.value.w);
                 anchorNode.opacity = start.opacity.value;
-                anchorNode.translate.setValue(start.anchor.value.x, start.anchor.value.y, start.anchor.value.z);
+                anchorNode.translate.setValue(start.anchor.value.x, start.anchor.value.y, 0);
+                // anchorNode.translate.setValue(start.anchor.value.x, start.anchor.value.y, start.anchor.value.z);
 
 
                 if (!start.translation.isConst) {

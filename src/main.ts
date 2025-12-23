@@ -40,7 +40,7 @@ export function Lottie2Gltf(lottie: LottieSchema, dstPath: string) {
 
     const nodes = rawNodes.map(node => {
         let nodeInfo: any = {
-            name: node.nodeId,
+            name: node.globalId || `id-${node.nodeId}`,
             
             children: node.children.map(child => findNodeIdx(child.nodeId)),
         };

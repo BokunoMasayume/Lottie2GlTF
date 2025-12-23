@@ -67,5 +67,16 @@ export class Node {
         this.children.unshift(child);
     }
 
+    parentDrawOrder() {
+        let parent = this.parent;
+        while (parent) {
+            if (parent.drawOrder > 0) {
+                return parent.drawOrder;
+            }
+            parent = parent.parent;
+        }
+        return 0;
+    }
+
 
 }
